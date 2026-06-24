@@ -420,13 +420,19 @@ function buildUpdateReferencesEnvelope(fields) {
   ].join("\n");
 }
 // ── Shared SOAP caller ────────────────────────────────────────────────────────
+const https = require("https");
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: process.env.REJECT_UNAUTHORIZED !== "false" ? true : false
+});
+
 async function callSoap(envelope, action) {
   return axios.post(SOAP_ENDPOINT, envelope, {
     headers: {
       "Content-Type": "text/xml; charset=utf-8",
       "SOAPAction": `urn:uniface:applic:services:CSYV1000#${action}`
     },
-    timeout: 10000
+    timeout: 10000,
+    httpsAgent
   });
 }
 
