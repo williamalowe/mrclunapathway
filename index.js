@@ -118,11 +118,13 @@ function buildExternalEnvelope(fields) {
   const { sessionId = "", method = "", requestData = {} } = fields;
 
   const {
-    typeId               = "",
-    contactTypeId        = "",
-    receivingOfficerId   = "",
-    noteSummary          = "",
-    moduleLinks          = []   // array of { moduleLinkRoleTypeId, moduleLinkApplicationId }
+    typeId                = "",
+    contactTypeId         = "",
+    receivingOfficerId    = "",
+    responsibleOfficerId  = "",
+    actioningOfficerId    = "",
+    noteSummary           = "",
+    moduleLinks           = []   // array of { moduleLinkRoleTypeId, moduleLinkApplicationId }
   } = requestData;
 
   // Build moduleLinks XML from array
@@ -163,6 +165,8 @@ function buildExternalEnvelope(fields) {
     <typeId>${typeId}</typeId>
     <contactTypeId>${contactTypeId}</contactTypeId>
     <receivingOfficerId>${receivingOfficerId}</receivingOfficerId>
+    <responsibleOfficerId>${responsibleOfficerId}</responsibleOfficerId>
+    <actioningOfficerId>${actioningOfficerId}</actioningOfficerId>
     <noteSummary>${noteSummary}</noteSummary>
     ${moduleLinksXml}
   </request>
