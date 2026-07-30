@@ -435,7 +435,7 @@ async function callSoap(envelope, action) {
       "Content-Type": "text/xml; charset=utf-8",
       "SOAPAction": `urn:uniface:applic:services:CSYV1000#${action}`
     },
-    timeout: 10000,
+    timeout: 30000,
     httpsAgent
   });
 }
