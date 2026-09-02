@@ -546,20 +546,32 @@ function parsePropertyAddressSearchResponse(xmlString) {
       ? (Array.isArray(results) ? results : [results])
       : [];
 
-    const topResult = resultsArray[0] ?? null;
+    // Only keep records where propertyType is "Standard Property".
+    // The SOAP field name isn't guaranteed to come back in a fixed case
+    // (e.g. propertyType / propertytype / PropertyType), so check a few
+    // common variants defensively.
+    const TARGET_PROPERTY_TYPE = "Standard Property";
+    const filteredResults = resultsArray.filter((r) => {
+      const propertyType = r?.propertyType ?? r?.propertytype ?? r?.PropertyType ?? r?.PROPERTYTYPE;
+      return typeof propertyType === "string" && propertyType.trim().toLowerCase() === TARGET_PROPERTY_TYPE.toLowerCase();
+    });
+
+    const topResult = filteredResults[0] ?? null;
     const DEFAULT_PROPERTY_ID = 393760;
 
     return {
       propertyId: topResult?.propertyid ?? DEFAULT_PROPERTY_ID,
       topResult,
-      totalResults: resultsArray.length,
+      results: filteredResults,
+      totalResults: filteredResults.length,
+      totalResultsUnfiltered: resultsArray.length,
       usedDefault: !topResult,
       more: responseDataInner?.root?.response?.more ?? null,
       status,
       error: error || null
     };
   } catch {
-    return { propertyId: 393760, topResult: null, totalResults: 0, usedDefault: true, more: null, status: null, error: "Failed to parse response" };
+    return { propertyId: 393760, topResult: null, results: [], totalResults: 0, totalResultsUnfiltered: 0, usedDefault: true, more: null, status: null, error: "Failed to parse response" };
   }
 }
 
@@ -695,13 +707,15 @@ app.post("/property-address-search", requireApiKey, async (req, res) => {
   }
   try {
     const soapRes = await callSoap(buildPropertyAddressSearchEnvelope(req.body), "EXTERNAL");
-    const { propertyId, topResult, totalResults, more, usedDefault, status, error } = parsePropertyAddressSearchResponse(soapRes.data);
+    const { propertyId, topResult, results, totalResults, totalResultsUnfiltered, usedDefault, more, status, error } = parsePropertyAddressSearchResponse(soapRes.data);
     res.json({
       success: true,
       statusCode: soapRes.status,
       propertyId,
       topResult: topResult ?? undefined,
+      results,
       totalResults,
+      totalResultsUnfiltered,
       usedDefault,
       more,
       pathwayStatus: status ?? undefined,
