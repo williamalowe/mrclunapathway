@@ -4,7 +4,18 @@ const { XMLParser } = require("fast-xml-parser");
 const { randomUUID } = require("crypto");
 
 const app = express();
-app.use(express.json());
+// Reconstruct the original path that Vercel's rewrite now overwrites
+app.use((req, res, next) => {
+  const original = req.query.__path;
+  if (typeof original === "string") {
+    const rest = { ...req.query };
+    delete rest.__path;                       // drop our smuggled param
+    const qs = new URLSearchParams(rest).toString();
+    req.url = original + (qs ? "?" + qs : ""); // e.g. "/logon/" (+ real query)
+    req.query = rest;
+  }
+  next();
+});
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const SOAP_ENDPOINT = process.env.SOAP_ENDPOINT || "http://your-server/uniface/wsdl/CSYV1000";
