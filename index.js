@@ -194,8 +194,8 @@ function buildFindNamesEnvelope(fields) {
   const { sessionId = "", searchData = {} } = fields;
 
   const {
-    name          = "",
-    givenname     = "",
+    name: rawName           = "",
+    givenname: rawGivenname = "",
     nameid        = "",
     nametype      = "",
     phonetic      = "false",
@@ -207,7 +207,18 @@ function buildFindNamesEnvelope(fields) {
     responsecount = "10"
   } = searchData;
 
+  // If either first name or last name is missing or blank, search for "A Resident" instead
+  const RESIDENT_GIVENNAME = "A";
+  const RESIDENT_NAME      = "Resident";
+
+  const missingName = !rawName || String(rawName).trim() === "" ||
+                      !rawGivenname || String(rawGivenname).trim() === "";
+
+  const givenname = missingName ? RESIDENT_GIVENNAME : rawGivenname;
+  const name      = missingName ? RESIDENT_NAME      : rawName;
+
   return [
+    // ...rest of the function is unchanged
     '<?xml version="1.0" encoding="utf-8"?>',
     '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"',
     '               xmlns:tns="urn:uniface:applic:services:CSYV1000"',
