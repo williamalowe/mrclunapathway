@@ -4,6 +4,7 @@ const { XMLParser } = require("fast-xml-parser");
 const { randomUUID } = require("crypto");
 
 const app = express();
+app.use(express.json());
 // Reconstruct the original path that Vercel's rewrite now overwrites
 app.use((req, res, next) => {
   const original = req.query.__path;
