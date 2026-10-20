@@ -182,8 +182,8 @@ function buildFindNamesEnvelope(fields) {
   const { sessionId = "", searchData = {} } = fields;
 
   const {
-    name: rawName           = "",
-    givenname: rawGivenname = "",
+    name          = "",
+    givenname     = "",
     nameid        = "",
     nametype      = "",
     phonetic      = "false",
@@ -194,16 +194,6 @@ function buildFindNamesEnvelope(fields) {
     retrievecount = "10",
     responsecount = "10"
   } = searchData;
-
-  // If either first name or last name is missing or blank, search for "A Resident" instead
-  const RESIDENT_GIVENNAME = "A";
-  const RESIDENT_NAME      = "Resident";
-
-  const missingName = !rawName || String(rawName).trim() === "" ||
-                      !rawGivenname || String(rawGivenname).trim() === "";
-
-  const givenname = missingName ? RESIDENT_GIVENNAME : rawGivenname;
-  const name      = missingName ? RESIDENT_NAME      : rawName;
 
   return [
     '<?xml version="1.0" encoding="utf-8"?>',
